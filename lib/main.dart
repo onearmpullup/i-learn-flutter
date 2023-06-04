@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -67,44 +66,50 @@ class _MyAppState extends State<MyApp> {
                     future: futureDog,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(padding: const EdgeInsets.all(12.0),
-                              child: Container(
-                                width: 200, height: 100,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    image: DecorationImage (
-                                        fit: BoxFit.cover, image: NetworkImage(
-                                        snapshot.data![i].imageLink
-                                    )
-                                    )
-                                ),
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              Navigator.push(context, _createRoute(snapshot.data![i]));
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(padding: const EdgeInsets.all(12.0),
+                                  child: Container(
+                                    width: 200, height: 100,
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(20.0),
+                                        image: DecorationImage (
+                                            fit: BoxFit.cover, image: NetworkImage(
+                                            snapshot.data![i].imageLink
+                                        )
+                                        )
+                                    ),
 
-                              ),),
-
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12.0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    snapshot.data![i].name,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  ),),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 12.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      snapshot.data![i].name,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       } else if (snapshot.hasError) {
@@ -120,6 +125,23 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Route _createRoute(Dog dog) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => MainPage(dog: dog),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 }
 /*
   @override
